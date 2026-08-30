@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi Folks</title>
+
+    <!-- CSS -->
+    <style>
+        body { margin: 0; background-color: #0d1117; color: #c9d1d9; font-size: 18px; }
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar { flex: 0 0 250px; width: 250px; min-width: 250px; max-width: 250px; background-color: #161b22; padding: 20px; border-right: 1px solid #30363d; display: flex; flex-direction: column; box-sizing: border-box; }
+        .sidebar h2 { margin-top: 0; }
+        .name-ruby { font-size: 1.3em; line-height: 1.6; margin: 0 0 8px 0; }
+        .name-ruby rt { font-size: 0.45em; }
+        .name-ruby ruby + ruby { margin-left: 0.4em; }
+        .nav-button { display: block; background: none; border: none; padding: 10px 0; color: #58a6ff; cursor: pointer; text-align: left; font-size: 20px; width: 100%; font-family: inherit; }
+        .nav-button:hover { text-decoration: underline; }
+        .sidebar-bottom { margin-top: auto; }
+        .sidebar-pic { max-width: 100%; height: auto; display: block; margin: 0 auto 8px auto; }
+        .pic-description { font-size: 16px; color: #8b949e; margin: 0 0 16px 0; text-align: center; }
+        .content { flex-grow: 1; padding: 30px; }
+        .recipe-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 20px; }
+        .recipe-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 18px; color: #c9d1d9; text-align: left; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
+        .recipe-card:hover { transform: translateY(-2px); border-color: #58a6ff; }
+        .recipe-card h3 { margin: 0 0 8px 0; color: #f0f6fc; }
+        .recipe-card p { margin: 0; color: #8b949e; }
+        .recipe-detail { max-width: 760px; }
+        .back-button { background: none; border: 1px solid #30363d; color: #58a6ff; border-radius: 8px; padding: 8px 12px; cursor: pointer; margin-bottom: 20px; }
+        .recipe-section { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 18px; margin-top: 16px; }
+        .recipe-section h3 { margin-top: 0; }
+    </style>
+    <!-- React. -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <!-- Babel JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <!--
+　　　　　　　　　　　　　　　　　　　　　　　　　　　＿
+　　　　　　　　　　　　　　　　 　 　 　 -- ､,ｨチ　　　 __｀　 ､　 _　--　　　　 ＿_　 γア
+　　　　　　　　　　　　 　 　 　 　 ／ , ﾆ二ﾍ,.　　＿/　　　　｀´―‐､―` ､―‐- ､ヽ| ﾚ´二ﾆ=-
+　　　　　　　　　　　　　　　　　 / ／ ,ィチ　}―‐_./　　 /´　　　 ＼　｀＞ ´￣￣｀　´ ' ‐=ﾆ三‐ ､
+　　　　　　　　　　　　　 　 -‐ ￣￣'　　/　ﾄ､ﾐx ｿ　　 / /　,}l.　| ヽﾏ, -ｧ=''￣　　　　　　　 　 ｀ヽ　　　_ =ァ
+　　　　　　　　　 　 　 ／＿__　　　 ＿ /　 lﾍ Уi　　./　≧メL_.||　|' ∨.／.／/　　　　-　　　　 　 >≦ィ}/ム　　＿　-―-
+　　　　　　　　　　　　￣ ／ /￣￣　 / 　 j　 {. ｲ 　 |Ⅳ{灯ﾏヽﾘｲ |Ⅳ./　/,.ｲ| |　　 　 　 ｀ヽ＿_ri＝==x_ﾘ¨　＜ ＿ -―‐-､ヾ､
+　 　 　 　 　 　 　 　 　 ム-ｲ　　　 ／　__/　　ヽ{　　ﾄ､{`c寸　{イﾚ|ﾚ个 ｲ i |トx_ | ヽ. ヽ. ､ ､ﾐxｨ八寸㌦‐ｧ,､　　　＼
+　　　　 　 　 　 　 　 　 ／ / 　 .／ ,イ|　 〉.　　ハ　 ｉ　ヽ""　 ∨' ﾘ. ｊ.|/ Ⅳ 依xヾ､ ﾍ　i　ﾍﾊ∧込:VヽxУ__｀ヽ、 　 ＼_
+.　　　　　 　 　 　 　 ／　 /　 ／-‐'/ｲ| ノ　ヽ/　 ', ﾊ　　　ﾏｧ_ '　'　　.l _У　jﾘ｡j〉o＼} ハ ﾊ Y ﾍ.入'､　　　 ｀ヽ ＼　ヽｰ＝=- ､
+_　-――――一　'　　　/　 　 　 .// /'　 (¨/　　 ヽ ヾx　 ／　　　　　 ヽ　　""　　 .ｨﾚ´`}ヽ}ｿ ／　 ㌦　　 　　`㌦ﾍ　ﾍ　　　　)
+-―ァ‐ '_　-‐'　　　　 ｨ/　 　 　 .//. 　 　 く｀ヽ、　 入　`ミ=-　､__　　　　`ﾏ_)　　　 { ヽ＜ . ／＿　　 ヾ､　　　　 ｀;〉ﾍ ﾍヽ、
+ィチ_／ 　 　 　 　 ／_/　　　　 //　　　 /:.:.｀ヽ:.＼{　 ヽｰ｀ヽ＿__ヽﾐx　　　ヽ　＿　 '｀ｰ-ﾐx＜: : :__ヽ＿_ ㌦　　　　　　ヽ ｀ー一'
+ア´　　　　 ｪﾆﾆ=‐ ' /　　　　 //　　　 /:./⌒｀ｰヽ:＼　 ＼}ヽ',　 　ﾘ ｀}　　　　　　 ヽ才´_: -‐￣: ＿: : : :ヽヽ〉　　　　　　｀ー＝‐'
+　　_ -‐ ￣　　　　 /'　　　　 /"　　　 /:./:.:.:.:.:.:.:.:.｀トハ　ｲﾘ ﾍi　γX.､　　　　　 　,込=＝x: : : : : : : :￣｀: :｀ ､
+／　　　　　　　　 //　　 　 / 　 　 　 .:.:i:.:.:.:.:.:.:.:.:.:.:.|:.ヽ:ﾍ /　 ﾘ　{ ﾉ|',｀}　　　　　 {: : : : : : : ヾ: ､: : : : : : : : : : ﾊ
+　　　　　 　 　 ／/　　 　 /.　　 　 　 i:.:|:.:.:.:.:.:.:.:.:.:ｉ:j:.:.:.＼ﾍ　 　 ﾊ　|_ .i　　　　　 .|: : : : : : : : ﾊ: :｀ヽ: : : : : : : : :i
+.　　　 　 　 ／　/　　　 ./.　　　　 　 ﾊ:.|:.:.:.:.:.:.:.:.:.:|ﾘ/:.:.:.:.ﾍﾍ　 ,ィぐミxﾏ｀ヽ　 　 λ: : : : : : : : :i: : : :｀ｰ┬- ＿ﾉ
+　　　 　 ／　　/　　　／　　　　 　 　 ﾊ:';.:.:.:.:.:.:.i;;;ﾊ:.:.:.:.:.:.:.:｀i/:.:.:| ￣r`i|､: : ト .　/{: : : : : : : : : :l: : : : : : :|
+-―一 '　 　 ./　　／　　 　 　 　 　 　 ﾊ:';.:.:.:.:.:.:ヾ;;|:.:.:.:.:.:.:.:.:|:.:.:.:l 　 j　{O>: : : ｀{: j: : : : : : : : : :|l: : : : : : |
+　　　 _ -‐ァ'　 ／　　　　　　　　　　　　ﾊﾍ:.:.:.:.:.:.:寸:.:.:.:.:.:.__レ=ｲ　 ;　ﾉ⌒ヽ_: : {=i: : : : : : : : : /|L＿＿__|
+-‐ァ/__／　 ／　　　　　　　　　　　　　　ﾊ:ﾍ:.:.:.:.:.:.｀}-一'':.:.:.:.:.:.λ人_{: : : :{: ｀ーﾍ、: : : : : : :/: :￣￣￣｀{
+／／　 ＞ ’　　　　　　　　　　　　　　　　ﾊ:ﾊ:.:.:.:/:.:.:.:.:.:.:.:.:.:.:.:.:.___} 　 |「ﾐx: : : : : :{: ＼: : : : /､: : : : : : : : :ﾊ
+- ‐一'　　　　　　　 　 　 　 　 　 　 　 　 　 :.ﾊ:.:.:.:.:.:.::.:.:.ィチ:|￣　　　ヾOﾘ: : : : : : : : : : : :/: : ｀ー-＿: : : : .
+　　　　　　　　　　　　　　　　　　　　　　　 /:.:.:｀ー一 ':.:.:.:._:.λ　　　 　 ｀寸＿: : : : : : :／: : : : : : : : : :￣ーュ
+　　　　　　　　　　　　　　　　　 　 　 　 　 j:.:.:.:.:.:.:.:.:r＜￣/:.:.:.:|　　　　　　　　 ￣丁ｰ': : : : : : : : : : : : : : : : : : : : .
+　　　　　　　　　　　　　　　　　　　　　　 /:.:.:.:.:.:.:.:.:.:.ー一:.:.:.:.:λ　　　　　　　　 　 |: : : : : : : : : : : : : : : : : : : : : : : :’ .
+　　　　　　　　　　　 　 　 　 　 　 　 　 /:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.ﾄ､　　　　　　　　　 : : : : : : : : : : : : : : : : : : : : : : : : : : : .
+　　　　　　　　　　　　　　　　　　　　　く:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.|㌦〉　　　　　　　　’＿: : ＿_: : : : : : : : : : : : : : : : : : : : :’ .
+　　　　　　　　　　　　　　　　　　　　　　丁＜:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:.:|　|　　　　　　　　　 |: :￣: : :|: : : : : : : : : : : : : : : : : : : : : : : ＼
+
+ -->
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function AboutMe() {
+            return (
+                <div>
+                    <h1>About Me</h1>
+                    <p>
+                        I am currently a final-year student at The Chinese University of Hong Kong, 
+                        majoring in Mathematics and Information Engineering. <br/>
+                    </p>
+                    <p>
+                        I am interested in censorship resistance, network privacy and anonymity, protocol design, p2p network, tools for privacy and security like Tor and VPN. Where I hope to understand how the internet adversaries affect our access to the internet, and design methods to circumvent these limitations. In grandiose terms, I hope to make internet a better place for everyone to connect and share ideas.
+                    </p>
+                </div>
+            );
+        }
+
+
+        function Research() {
+            return (
+                <div>
+                    <h1>Research</h1>
+                    <p>Under construction.</p>
+                </div>
+            );
+        }
+
+        function Misc() {
+            return (
+                <div>
+                    <h1>Misc</h1>
+                    <ul>
+                        <li>I use Arch BTW.</li>
+                        <li>I am a cat person, although Shiba Inu is also adorable.</li>
+                        <li>I enjoy cooking, weightlifting, and playing Riichi Mahjong (日本麻雀).</li>
+                        <li>I am learning how to draw moe-e illustrations (萌え絵).</li>
+                        <li>I obtained my JLPT N2 certificate with a perfect score. (Still a long way to go.)</li>
+                    </ul>
+
+                </div>
+            );
+        }
+
+        const recipeList = [
+            {
+                slug: 'aglio-e-olio',
+                title: 'Aglio e Olio',
+                blurb: 'Simple pasta, best for forgetting the bad grades recieved.',
+                ingredients: ['spaghetti', 'extra virgin olive oil', 'garlic', 'parsley', 'peperoncino, ', 'salt', 'parmigiano regiano / grana padano', '(optional) Drops of tears from getting bad grades, depending on how sad you are'],
+                steps: [
+                    'Separate the parsley leaves from the stems. Chop the garlic, parsley leaves, and peperoncino and set them aside.',
+                    'Boil the spaghetti in well-salted water. Reserve about 1 cup of pasta water before draining. (I go for package time minus 3 minutes for boiling time, you can add the tear drops to the water to replace some salt.)',
+                    'Warm some EVOO in a pan with the garlic, parsley stems, and peperoncino until fragrant.',
+                    'Add the spaghetti and pasta water, reduce the water up to your taste.',
+                    'Pick out the stems and turn off the heat for about 20 seconds, then add the parsley leaves, generous amount of EVOO, and the cheese. Toss the pan to mantecare the pasta.',
+                    'Enjoy'
+                ]
+            }
+        ];
+
+        function RecipesIndex(props) {
+            return (
+                <div>
+                    <h1>Recipes</h1>
+                    <p>Some of my signature dishes.</p>
+                    <div className="recipe-list">
+                        {recipeList.map((recipe) => (
+                            <button key={recipe.slug} className="recipe-card" onClick={() => props.setSelectedRecipe(recipe.slug)}>
+                                <h3>{recipe.title}</h3>
+                                <p>{recipe.blurb}</p>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function RecipeDetail(props) {
+            const recipe = recipeList.find((item) => item.slug === props.selectedRecipe);
+
+            if (!recipe) {
+                return null;
+            }
+
+            return (
+                <div className="recipe-detail">
+                    <button className="back-button" onClick={() => props.setSelectedRecipe(null)}>← Back to Recipes</button>
+                    <h1>{recipe.title}</h1>
+                    <p>{recipe.blurb}</p>
+
+                    <div className="recipe-section">
+                        <h3>Ingredients</h3>
+                        <ul>
+                            {recipe.ingredients.map((ingredient, index) => (
+                                <li key={index}>{ingredient}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className="recipe-section">
+                        <h3>Steps</h3>
+                        <ol>
+                            {recipe.steps.map((step, index) => (
+                                <li key={index}>{step}</li>
+                            ))}
+                        </ol>
+                    </div>
+                </div>
+            );
+        }
+
+        // Sidebar 
+        function Sidebar(props) {
+            return (
+                <div className="sidebar">
+                    <div>
+                        <h2>Tsz Kei "Zeke" CHIU</h2>
+                        <h2 className="name-ruby"><ruby>趙<rt>チョウ</rt></ruby><ruby>梓琦<rt>シキ</rt></ruby></h2>
+                        {/* When a button is clicked, it tells the App to update the state */}
+                        <button className="nav-button" onClick={() => props.setCurrentPage('AboutMe')}>About Me</button>
+                        <button className="nav-button" onClick={() => props.setCurrentPage('Research')}>Research</button>
+                        <button className="nav-button" onClick={() => props.setCurrentPage('Recipes')}>Recipes</button>
+                        <button className="nav-button" onClick={() => props.setCurrentPage('Misc')}>Misc</button>
+                    </div>
+                    
+                    <div className="sidebar-bottom">
+                        <img src="https://raw.githubusercontent.com/CTK1105/CTK1105.github.io/main/red_onion.png" alt="sidebar decoration" className="sidebar-pic" />
+                        <p className="pic-description">This is a red onion, yum.</p>
+                    </div>
+                    <div style={{ fontSize: '18px', color: '#8b949e' }}>
+                        Last Updated: 2026-08-15
+                    </div>
+                </div>
+            );
+        }
+
+
+        function App() {
+            const [currentPage, setCurrentPage] = React.useState('AboutMe');
+            const [selectedRecipe, setSelectedRecipe] = React.useState(null);
+
+            let pageContent;
+            if (currentPage === 'AboutMe') {
+                pageContent = <AboutMe />;
+            } else if (currentPage === 'Research') {
+                pageContent = <Research />;
+            } else if (currentPage === 'Recipes') {
+                pageContent = selectedRecipe
+                    ? <RecipeDetail selectedRecipe={selectedRecipe} setSelectedRecipe={setSelectedRecipe} />
+                    : <RecipesIndex setSelectedRecipe={setSelectedRecipe} />;
+            } else if (currentPage === 'Misc') {
+                pageContent = <Misc />;
+            }
+
+            return (
+                <div className="app-container">
+                    <Sidebar setCurrentPage={(page) => {
+                        setCurrentPage(page);
+                        if (page !== 'Recipes') {
+                            setSelectedRecipe(null);
+                        }
+                    }} />
+                    <div className="content">
+                        {pageContent}
+                    </div>
+                </div>
+            );
+        }
+
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
